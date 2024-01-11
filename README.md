@@ -1,6 +1,22 @@
-# debug
+# my rcore os
+
+
+
+# how to run os
+
+## run
+``` bash
+cd os
+
+make run_os
+
+```
+
+## run with debug
 
 ``` bash
+cd os
+
 make run_os_debug
 
 gdb-multiarch \
