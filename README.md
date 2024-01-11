@@ -2,7 +2,7 @@
 
 
 
-# how to run os
+# how to run os ?
 
 ## run
 ``` bash
