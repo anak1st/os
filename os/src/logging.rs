@@ -1,6 +1,7 @@
-///! 本模块利用 log crate 提供了日志功能
+use core::usize;
 
-use log::{Log, Level, LevelFilter, SetLoggerError, Metadata, Record};
+///! 本模块利用 log crate 提供了日志功能
+use log::{Level, LevelFilter, Log, Metadata, Record};
 
 struct SimpleLogger;
 
@@ -29,8 +30,22 @@ impl Log for SimpleLogger {
     fn flush(&self) {}
 }
 
-static LOGGER: SimpleLogger = SimpleLogger;
-pub fn init() -> Result<(), SetLoggerError> {
-    log::set_logger(&LOGGER)
-        .map(|()| log::set_max_level(LevelFilter::Trace))
+/// 初始化日志模块
+/// `level`: 日志级别，0 为关闭日志，1 为 Error，2 为 Warn，3 为 Info，4 为 Debug，5 为 Trace
+pub fn init(level: usize) {
+    static LOGGER: SimpleLogger = SimpleLogger;
+    log::set_logger(&LOGGER).unwrap();
+
+    // 设置日志级别
+    let max_log_level = match level {
+        0 => LevelFilter::Off,
+        1 => LevelFilter::Error,
+        2 => LevelFilter::Warn,
+        3 => LevelFilter::Info,
+        4 => LevelFilter::Debug,
+        5 => LevelFilter::Trace,
+        _ => LevelFilter::Off,
+    };
+
+    log::set_max_level(max_log_level);
 }

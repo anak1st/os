@@ -42,14 +42,13 @@ fn clear_bss() {
         fn sbss();
         fn ebss();
     }
-    (sbss as usize..ebss as usize).for_each(|a| unsafe { 
+    (sbss as usize..ebss as usize).for_each(|a| unsafe {
         (a as *mut u8).write_volatile(0);
     });
 }
 
-/// the rust entry-point of os
-#[no_mangle]
-pub fn rust_main() -> ! {
+#[allow(unused)]
+fn test_logging() {
     extern "C" {
         fn stext(); // begin addr of text segment
         fn etext(); // end addr of text segment
@@ -62,31 +61,29 @@ pub fn rust_main() -> ! {
         fn boot_stack_lower_bound(); // stack lower bound
         fn boot_stack_top(); // stack top
     }
-    clear_bss();
-    logging::init().unwrap();
-    
-    println!("Testing logging:");
-    trace!(
-        "[kernel] .text [{:#x}, {:#x})",
-        stext as usize,
-        etext as usize
-    );
-    debug!(
-        "[kernel] .rodata [{:#x}, {:#x})",
-        srodata as usize, erodata as usize
-    );
-    info!(
-        "[kernel] .data [{:#x}, {:#x})",
-        sdata as usize, edata as usize
-    );
+    println!("[kernel] Testing logging:");
+
+    trace!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
+    debug!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
+    info!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
     warn!(
-        "[kernel] boot_stack top=bottom={:#x}, lower_bound={:#x}",
+        "boot_stack top=bottom={:#x}, lower_bound={:#x}",
         boot_stack_top as usize, boot_stack_lower_bound as usize
     );
-    error!("[kernel] .bss [{:#x}, {:#x})", sbss as usize, ebss as usize);
+    error!(".bss [{:#x}, {:#x})", sbss as usize, ebss as usize);
+}
 
-    println!("Hello, world!");
+/// the rust entry-point of os
+#[no_mangle]
+pub fn rust_main() -> ! {
+    clear_bss();
+    logging::init(5);
+
+    // test_logging();
+
+    println!("[kernel] Hello, world!");
     // panic!("Shutdown machine!");
+
     trap::init();
     batch::init();
     batch::run_next_app();

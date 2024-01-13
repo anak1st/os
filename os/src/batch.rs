@@ -1,11 +1,11 @@
 //! batch subsystem
 
-use log::*;
 use crate::sbi::shutdown;
 use crate::sync::UPSafeCell;
 use crate::trap::TrapContext;
 use core::arch::asm;
 use lazy_static::*;
+use log::*;
 
 const USER_STACK_SIZE: usize = 4096 * 2;
 const KERNEL_STACK_SIZE: usize = 4096 * 2;
@@ -57,10 +57,10 @@ struct AppManager {
 
 impl AppManager {
     pub fn print_app_info(&self) {
-        info!("[kernel] num_app = {}:", self.num_app);
+        info!("[AppManager] num_app = {}:", self.num_app);
         for i in 0..self.num_app {
-            info!(
-                "[kernel] app_{} [{:#x}, {:#x})",
+            println!(
+                "[AppManager] app_{} [{:#x}, {:#x})",
                 i,
                 self.app_start[i],
                 self.app_start[i + 1]
@@ -70,10 +70,10 @@ impl AppManager {
 
     unsafe fn load_app(&self, app_id: usize) {
         if app_id >= self.num_app {
-            warn!("All applications completed!");
+            info!("[AppManager] All applications completed!");
             shutdown(false);
         }
-        warn!("[kernel] Loading app_{}.", app_id);
+        info!("[AppManager] Loading app_{}.", app_id);
         // clear app area
         core::slice::from_raw_parts_mut(APP_BASE_ADDRESS as *mut u8, APP_SIZE_LIMIT).fill(0);
         let app_src = core::slice::from_raw_parts(
