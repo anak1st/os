@@ -18,7 +18,6 @@ pub fn print(args: fmt::Arguments) {
     Stdout.write_fmt(args).unwrap();
 }
 
-
 /// print string macro
 #[macro_export]
 macro_rules! print {
@@ -26,7 +25,6 @@ macro_rules! print {
         $crate::console::print(format_args!($fmt $(, $($arg)+)?));
     }
 }
-
 
 /// println string macro
 #[macro_export]

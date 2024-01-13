@@ -49,6 +49,8 @@ $(KERNEL_BIN): kernel
 	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $@
 
 kernel:
+	@cd ../user && make build
+	@echo Platform: $(BOARD)
 	@cargo build $(MODE_ARG)
 
 .PHONY: build kernel clean run debug gdbserver gdbclient
