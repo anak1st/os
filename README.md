@@ -1,27 +1,24 @@
 # my rcore os
 
+## 任务列表：
+- [x] ch1
+- [x] ch2
+- [ ] ch3
 
+## how to run os ?
 
-# how to run os ?
-
-## run
+### run
 ``` bash
 cd os
 
-make run_os
+make run
 
 ```
 
-## run with debug
+### run with debug
 
 ``` bash
 cd os
 
-make run_os_debug
-
-gdb-multiarch \
-    -ex 'file target/riscv64gc-unknown-none-elf/release/os' \
-    -ex 'set arch riscv:rv64' \
-    -ex 'target remote localhost:1234'
-
+make debug
 ```

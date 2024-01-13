@@ -1,5 +1,3 @@
-use core::usize;
-
 ///! 本模块利用 log crate 提供了日志功能
 use log::{Level, LevelFilter, Log, Metadata, Record};
 
@@ -38,7 +36,7 @@ impl Log for SimpleLogger {
 /// `3` 为 Info，
 /// `4` 为 Debug，
 /// `5` 为 Trace
-pub fn init(level: usize) {
+pub fn init(level: i32) {
     static LOGGER: SimpleLogger = SimpleLogger;
     log::set_logger(&LOGGER).unwrap();
 
