@@ -97,9 +97,9 @@ pub fn rust_main() -> ! {
 
     // test_logging();
 
-    panic!("Shutdown machine!");
+    // panic!("Shutdown machine!");
 
-    // trap::init();
-    // batch::init();
-    // batch::run_next_app();
+    trap::init();
+    batch::init();
+    batch::run_next_app();
 }
