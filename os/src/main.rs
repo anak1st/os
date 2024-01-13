@@ -61,16 +61,29 @@ fn test_logging() {
         fn boot_stack_lower_bound(); // stack lower bound
         fn boot_stack_top(); // stack top
     }
-    println!("[kernel] Testing logging:");
+    println!("[kernel.test_logging] Testing logging:");
 
-    trace!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
-    debug!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
-    info!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
+    trace!(
+        "[kernel.test_logging] .text [{:#x}, {:#x})",
+        stext as usize,
+        etext as usize
+    );
+    debug!(
+        "[kernel.test_logging] .rodata [{:#x}, {:#x})",
+        srodata as usize, erodata as usize
+    );
+    info!(
+        "[kernel.test_logging] .data [{:#x}, {:#x})",
+        sdata as usize, edata as usize
+    );
     warn!(
-        "boot_stack top=bottom={:#x}, lower_bound={:#x}",
+        "[kernel.test_logging] boot_stack top=bottom={:#x}, lower_bound={:#x}",
         boot_stack_top as usize, boot_stack_lower_bound as usize
     );
-    error!(".bss [{:#x}, {:#x})", sbss as usize, ebss as usize);
+    error!(
+        "[kernel.test_logging] .bss [{:#x}, {:#x})",
+        sbss as usize, ebss as usize
+    );
 }
 
 /// the rust entry-point of os
@@ -79,12 +92,14 @@ pub fn rust_main() -> ! {
     clear_bss();
     logging::init(5);
 
+    info!("[kernel] rCore kernel started successfully.");
+    println!("[kernel] Hello, world!");
+
     // test_logging();
 
-    println!("[kernel] Hello, world!");
-    // panic!("Shutdown machine!");
+    panic!("Shutdown machine!");
 
-    trap::init();
-    batch::init();
-    batch::run_next_app();
+    // trap::init();
+    // batch::init();
+    // batch::run_next_app();
 }

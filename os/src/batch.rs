@@ -57,10 +57,10 @@ struct AppManager {
 
 impl AppManager {
     pub fn print_app_info(&self) {
-        info!("[AppManager] num_app = {}:", self.num_app);
+        info!("[kernel.batch] num_app = {}.", self.num_app);
         for i in 0..self.num_app {
-            println!(
-                "[AppManager] app_{} [{:#x}, {:#x})",
+            debug!(
+                "[kernel.batch] app_{} [{:#x}, {:#x})",
                 i,
                 self.app_start[i],
                 self.app_start[i + 1]
@@ -70,10 +70,10 @@ impl AppManager {
 
     unsafe fn load_app(&self, app_id: usize) {
         if app_id >= self.num_app {
-            info!("[AppManager] All applications completed!");
+            info!("[kernel.batch] All applications completed!");
             shutdown(false);
         }
-        info!("[AppManager] Loading app_{}.", app_id);
+        info!("[kernel.batch] Loading app_{}.", app_id);
         // clear app area
         core::slice::from_raw_parts_mut(APP_BASE_ADDRESS as *mut u8, APP_SIZE_LIMIT).fill(0);
         let app_src = core::slice::from_raw_parts(

@@ -31,7 +31,13 @@ impl Log for SimpleLogger {
 }
 
 /// 初始化日志模块
-/// `level`: 日志级别，0 为关闭日志，1 为 Error，2 为 Warn，3 为 Info，4 为 Debug，5 为 Trace
+/// `level`: 日志级别: 
+/// `0` 为关闭日志，
+/// `1` 为 Error，
+/// `2` 为 Warn，
+/// `3` 为 Info，
+/// `4` 为 Debug，
+/// `5` 为 Trace
 pub fn init(level: usize) {
     static LOGGER: SimpleLogger = SimpleLogger;
     log::set_logger(&LOGGER).unwrap();
