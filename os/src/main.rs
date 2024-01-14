@@ -4,6 +4,7 @@
 //! important ones are:
 //!
 //! - [`trap`]: Handles all cases of switching from userspace to the kernel
+//! - [`task`]: Task management
 //! - [`syscall`]: System call handling and implementation
 //!
 //! The operating system also starts in this module. Kernel code starts
@@ -11,7 +12,7 @@
 //! initialize various pieces of functionality. (See its source code for
 //! details.)
 //!
-//! We then call [`batch::run_next_app()`] and for the first time go to
+//! We then call [`task::run_first_task()`] and for the first time go to
 //! userspace.
 
 #![deny(missing_docs)]
@@ -22,21 +23,28 @@
 
 use core::arch::global_asm;
 
+#[path = "boards/qemu.rs"]
+mod board;
+
 use log::*;
+
 #[macro_use]
 mod console;
-pub mod batch;
+mod config;
 mod lang_items;
+mod loader;
 mod logging;
 mod sbi;
 mod sync;
 pub mod syscall;
+pub mod task;
+mod timer;
 pub mod trap;
 
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
 
-/// 手动清空需要零初始化的 .bss 段
+/// clear BSS segment
 fn clear_bss() {
     extern "C" {
         fn sbss();
@@ -90,16 +98,15 @@ fn test_logging() {
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
-    logging::init(5);
-
-    info!("[kernel] rCore kernel started successfully.");
-    println!("[kernel] Hello, world!");
-
-    // test_logging();
-
-    // panic!("Shutdown machine!");
-
     trap::init();
-    batch::init();
-    batch::run_next_app();
+    trap::enable_timer_interrupt();
+    timer::set_next_trigger();
+
+    logging::init(5);
+    info!("[kernel] Hello, world!");
+
+    loader::load_apps();
+
+    task::run_first_task();
+    panic!("Unreachable in rust_main!");
 }

@@ -1,5 +1,6 @@
 ///! 本模块利用 log crate 提供了日志功能
 use log::{Level, LevelFilter, Log, Metadata, Record};
+use crate::syscall;
 
 struct SimpleLogger;
 
@@ -18,9 +19,16 @@ impl Log for SimpleLogger {
             Level::Debug => 32, // Green
             Level::Trace => 90, // BrightBlack
         };
+
+        let current_time = syscall::syscall(syscall::SYSCALL_GET_TIME, [0, 0, 0]);
+        let current_sec = current_time / 1000;
+        let current_ms = current_time % 1000 / 10;
+
         println!(
-            "\u{1B}[{}m[{:>5}] {}\u{1B}[0m",
+            "\u{1B}[{}m[{:>2}.{:02}|{:<5}] {}\u{1B}[0m",
             color,
+            current_sec,
+            current_ms,
             record.level(),
             record.args(),
         );

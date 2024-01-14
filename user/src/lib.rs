@@ -7,6 +7,7 @@
 pub mod console;
 mod lang_items;
 mod syscall;
+pub mod math;
 
 /// 用户库的入口点
 /// Rust 的宏将 _start 这段代码编译后的汇编代码中放在一个名为 .text.entry 的代码段中
@@ -28,7 +29,7 @@ fn main() -> i32 {
     panic!("Cannot find main!");
 }
 
-// 手动清空需要零初始化的 .bss 段
+/// clear BSS segment
 fn clear_bss() {
     extern "C" {
         fn start_bss();
@@ -44,6 +45,15 @@ use syscall::*;
 pub fn write(fd: usize, buf: &[u8]) -> isize {
     sys_write(fd, buf)
 }
+
 pub fn exit(exit_code: i32) -> isize {
     sys_exit(exit_code)
+}
+
+pub fn yield_() -> isize {
+    sys_yield()
+}
+
+pub fn get_time() -> isize {
+    sys_get_time()
 }
