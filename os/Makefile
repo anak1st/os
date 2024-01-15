@@ -25,6 +25,15 @@ OBJCOPY := rust-objcopy --binary-architecture=riscv64
 # Disassembly
 DISASM ?= -x
 
+# Running
+ifeq ($(OS),Windows_NT)
+	QEMU := "C:/Program Files/qemu/qemu-system-riscv64.exe"
+else
+	QEMU := qemu-system-riscv64
+endif
+
+GDB := gdb-multiarch
+
 build: $(KERNEL_BIN)
 
 env:
@@ -38,10 +47,10 @@ $(KERNEL_BIN): kernel
 
 kernel:
 	@cd ../user && make build
-	@echo Platform: $(BOARD)
-	@cp src/linker-$(BOARD).ld src/linker.ld
+	@echo "Platform: $(BOARD)"
+	@cp "src/linker-$(BOARD).ld" "src/linker.ld"
 	@cargo build $(MODE_ARG)
-	@rm src/linker.ld
+	@rm "src/linker.ld"
 
 clean:
 	@cargo clean
@@ -62,18 +71,20 @@ QEMU_ARGS := -machine virt \
 			 -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA)
 
 run-inner: build
-	@qemu-system-riscv64 $(QEMU_ARGS)
+	@echo "System $(OS)"
+	@echo "Using QEMU: $(QEMU)"
+	@$(QEMU) $(QEMU_ARGS)
 
 debug: build
 	@tmux new-session -d \
 		"qemu-system-riscv64 $(QEMU_ARGS) -s -S" && \
-		tmux split-window -h "riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'" && \
+		tmux split-window -h "$(GDB) -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'" && \
 		tmux -2 attach-session -d
 
 gdbserver: build
-	@qemu-system-riscv64 $(QEMU_ARGS) -s -S
+	@$(QEMU) $(QEMU_ARGS) -s -S
 
 gdbclient:
-	@riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
+	@$(GDB) -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
 
 .PHONY: build env kernel clean disasm disasm-vim run-inner gdbserver gdbclient

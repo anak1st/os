@@ -1,4 +1,5 @@
-///! 本模块利用 log crate 提供了日志功能
+//! 本模块利用 log crate 提供了日志功能
+
 use log::{Level, LevelFilter, Log, Metadata, Record};
 use crate::syscall;
 
