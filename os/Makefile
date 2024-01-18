@@ -27,7 +27,7 @@ DISASM ?= -x
 
 # Running
 ifeq ($(OS),Windows_NT)
-	QEMU := "C:/Program Files/qemu/qemu-system-riscv64.exe"
+	QEMU := "C:/Users/Anak1st/Programs/qemu/qemu-system-riscv64.exe"
 else
 	QEMU := qemu-system-riscv64
 endif
@@ -47,10 +47,10 @@ $(KERNEL_BIN): kernel
 
 kernel:
 	@cd ../user && make build
-	@echo "Platform: $(BOARD)"
-	@cp "src/linker-$(BOARD).ld" "src/linker.ld"
+	@echo Platform: $(BOARD)
+	@cp src/linker-$(BOARD).ld src/linker.ld
 	@cargo build $(MODE_ARG)
-	@rm "src/linker.ld"
+	@rm src/linker.ld
 
 clean:
 	@cargo clean
