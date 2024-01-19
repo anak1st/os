@@ -25,9 +25,9 @@ OBJCOPY := rust-objcopy --binary-architecture=riscv64
 # Disassembly
 DISASM ?= -x
 
-# Running
-ifeq ($(OS),Windows_NT)
-	QEMU := "C:/Users/Anak1st/Programs/qemu/qemu-system-riscv64.exe"
+# Running QEMU
+ifeq ($(OS), Windows_NT)
+	QEMU := "C:/Program Files/qemu/qemu-system-riscv64.exe"
 else
 	QEMU := qemu-system-riscv64
 endif
@@ -71,8 +71,6 @@ QEMU_ARGS := -machine virt \
 			 -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA)
 
 run-inner: build
-	@echo "System $(OS)"
-	@echo "Using QEMU: $(QEMU)"
 	@$(QEMU) $(QEMU_ARGS)
 
 debug: build

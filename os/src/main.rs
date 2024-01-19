@@ -20,13 +20,17 @@
 #![no_std]
 #![no_main]
 #![feature(panic_info_message)]
+#![feature(alloc_error_handler)]
 
-use core::arch::global_asm;
+extern crate alloc;
+
+#[macro_use]
+extern crate bitflags;
+
+use log::*;
 
 #[path = "boards/qemu.rs"]
 mod board;
-
-use log::*;
 
 #[macro_use]
 mod console;
@@ -34,6 +38,7 @@ mod config;
 mod lang_items;
 mod loader;
 mod logging;
+mod mm;
 mod sbi;
 mod sync;
 pub mod syscall;
@@ -41,8 +46,8 @@ pub mod task;
 mod timer;
 pub mod trap;
 
-global_asm!(include_str!("entry.asm"));
-global_asm!(include_str!("link_app.S"));
+core::arch::global_asm!(include_str!("entry.asm"));
+core::arch::global_asm!(include_str!("link_app.S"));
 
 /// clear BSS segment
 fn clear_bss() {
@@ -50,63 +55,24 @@ fn clear_bss() {
         fn sbss();
         fn ebss();
     }
-    (sbss as usize..ebss as usize).for_each(|a| unsafe {
-        (a as *mut u8).write_volatile(0);
-    });
-}
-
-#[allow(unused)]
-fn test_logging() {
-    extern "C" {
-        fn stext(); // begin addr of text segment
-        fn etext(); // end addr of text segment
-        fn srodata(); // start addr of Read-Only data segment
-        fn erodata(); // end addr of Read-Only data ssegment
-        fn sdata(); // start addr of data segment
-        fn edata(); // end addr of data segment
-        fn sbss(); // start addr of BSS segment
-        fn ebss(); // end addr of BSS segment
-        fn boot_stack_lower_bound(); // stack lower bound
-        fn boot_stack_top(); // stack top
+    unsafe {
+        core::slice::from_raw_parts_mut(sbss as usize as *mut u8, ebss as usize - sbss as usize)
+            .fill(0);
     }
-    println!("[kernel.test_logging] Testing logging:");
-
-    trace!(
-        "[kernel.test_logging] .text [{:#x}, {:#x})",
-        stext as usize,
-        etext as usize
-    );
-    debug!(
-        "[kernel.test_logging] .rodata [{:#x}, {:#x})",
-        srodata as usize, erodata as usize
-    );
-    info!(
-        "[kernel.test_logging] .data [{:#x}, {:#x})",
-        sdata as usize, edata as usize
-    );
-    warn!(
-        "[kernel.test_logging] boot_stack top=bottom={:#x}, lower_bound={:#x}",
-        boot_stack_top as usize, boot_stack_lower_bound as usize
-    );
-    error!(
-        "[kernel.test_logging] .bss [{:#x}, {:#x})",
-        sbss as usize, ebss as usize
-    );
 }
 
-/// the rust entry-point of os
 #[no_mangle]
+/// the rust entry-point of os
 pub fn rust_main() -> ! {
     clear_bss();
+    logging::init(5);
+    info!("[kernel] Hello, world!");
+    mm::init();
+    info!("[kernel] back to world!");
+    mm::remap_test();
     trap::init();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
-
-    logging::init(5);
-    info!("[kernel] Hello, world!");
-
-    loader::load_apps();
-
     task::run_first_task();
     panic!("Unreachable in rust_main!");
 }

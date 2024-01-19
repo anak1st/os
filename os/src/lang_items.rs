@@ -1,8 +1,10 @@
+//! The panic handler
+
 use crate::sbi::shutdown;
 use core::panic::PanicInfo;
-use log::error;
+use log::*;
 
-/// The panic handler
+/// panic handler
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     if let Some(location) = info.location() {

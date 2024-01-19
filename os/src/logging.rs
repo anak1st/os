@@ -1,7 +1,7 @@
 //! 本模块利用 log crate 提供了日志功能
 
 use log::{Level, LevelFilter, Log, Metadata, Record};
-use crate::syscall;
+use crate::timer::get_time_ms;
 
 struct SimpleLogger;
 
@@ -21,7 +21,7 @@ impl Log for SimpleLogger {
             Level::Trace => 90, // BrightBlack
         };
 
-        let current_time = syscall::syscall(syscall::SYSCALL_GET_TIME, [0, 0, 0]);
+        let current_time = get_time_ms();
         let current_sec = current_time / 1000;
         let current_ms = current_time % 1000 / 10;
 
